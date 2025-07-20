@@ -2,49 +2,50 @@
 
 /**
  * _printf - Produces output according to a format
- * @format: Format string
+ * @format: The format string
  *
- * Return: Number of characters printed
+ * Return: Number of characters printed (excluding null byte)
  */
 int _printf(const char *format, ...)
 {
 	va_list args;
 	int i = 0, count = 0;
 
-	if (!format)
+	if (format == NULL)
 		return (-1);
 
 	va_start(args, format);
+
 	while (format[i])
 	{
-		if (format[i] == '%' && format[i + 1])
+		if (format[i] == '%')
 		{
 			i++;
-			switch (format[i])
+			if (format[i] == '\0')
+				return (-1);
+
+			if (format[i] == 'c')
+				count += print_char(args);
+			else if (format[i] == 's')
+				count += print_string(args);
+			else if (format[i] == '%')
+				count += _putchar('%');
+			else if (format[i] == 'd' || format[i] == 'i')
+				count += print_int(args);
+			else
 			{
-				case 'c':
-					count += print_char(args);
-					break;
-				case 's':
-					count += print_string(args);
-					break;
-				case '%':
-					count += print_percent();
-					break;
-				default:
-					write(1, "%", 1);
-					write(1, &format[i], 1);
-					count += 2;
-					break;
+				count += _putchar('%');
+				count += _putchar(format[i]);
 			}
 		}
 		else
 		{
-			write(1, &format[i], 1);
-			count++;
+			count += _putchar(format[i]);
 		}
 		i++;
 	}
+
 	va_end(args);
 	return (count);
 }
+
